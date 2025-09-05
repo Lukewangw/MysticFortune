@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mystic Fortune - Four Pillars & Tarot</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-gold: #d4af37;
+        --secondary-purple: #9333ea;
+        --dark-bg: #0f0618;
+        --card-bg: rgba(20, 10, 40, 0.8);
+        --text-light: #e8e3f5;
+        --accent-red: #dc2626;
+        --accent-blue: #2563eb;
+        --accent-green: #16a34a;
+      }
+
+      body {
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+        background: linear-gradient(
+          135deg,
+          #0f0618 0%,
+          #1a0b2e 40%,
+          #2d1548 100%
+        );
+        min-height: 100vh;
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      /* Animated Background */
+      .cosmic-bg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: -1;
+        overflow: hidden;
+      }
+
+      .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0;
+        animation: twinkle 4s infinite;
+      }
+
+      @keyframes twinkle {
+        0%,
+        100% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .constellation {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: var(--primary-gold);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--primary-gold);
+        opacity: 0.3;
+      }
+
+      /* Layout */
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        position: relative;
+      }
+
+      /* Header */
+      .header {
+        text-align: center;
+        padding: 30px 0;
+        position: relative;
+      }
+
+      .logo {
+        font-size: 3em;
+        font-weight: 300;
+        letter-spacing: 0.1em;
+        background: linear-gradient(
+          135deg,
+          var(--primary-gold),
+          var(--secondary-purple)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 40px rgba(212, 175, 55, 0.3);
+      }
+
+      .tagline {
+        margin-top: 10px;
+        font-size: 1.1em;
+        opacity: 0.8;
+        letter-spacing: 0.05em;
+      }
+
+      /* User Bar */
+      .user-bar {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: var(--card-bg);
+        padding: 12px 20px;
+        border-radius: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+      }
+
+      .user-avatar {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--primary-gold),
+          var(--secondary-purple)
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--dark-bg);
+      }
+
+      .user-name {
+        font-size: 0.95em;
+      }
+
+      .btn-logout {
+        padding: 8px 16px;
+        background: transparent;
+        border: 1px solid var(--primary-gold);
+        color: var(--primary-gold);
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.9em;
+      }
+
+      .btn-logout:hover {
+        background: var(--primary-gold);
+        color: var(--dark-bg);
+      }
+
+      /* Navigation Tabs */
+      .nav-container {
+        display: flex;
+        justify-content: center;
+        margin: 40px 0;
+        gap: 20px;
+      }
+
+      .nav-tab {
+        padding: 15px 40px;
+        background: var(--card-bg);
+        border: 2px solid transparent;
+        border-radius: 30px;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 1.1em;
+        letter-spacing: 0.05em;
+        backdrop-filter: blur(10px);
+      }
+
+      .nav-tab:hover {
+        border-color: var(--primary-gold);
+        transform: translateY(-2px);
+      }
+
+      .nav-tab.active {
+        background: linear-gradient(
+          135deg,
+          rgba(212, 175, 55, 0.2),
+          rgba(147, 51, 234, 0.2)
+        );
+        border-color: var(--primary-gold);
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
+      }
+
+      /* Main Content */
+      .content-wrapper {
+        background: var(--card-bg);
+        border-radius: 25px;
+        padding: 40px;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(212, 175, 55, 0.1);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.5s;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Forms */
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin: 30px 0;
+      }
+
+      .form-group {
+        position: relative;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--primary-gold);
+        font-size: 0.95em;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        width: 100%;
+        padding: 12px 15px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(212, 175, 55, 0.2);
+        border-radius: 10px;
+        color: var(--text-light);
+        font-size: 1em;
+        transition: all 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-gold);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+      }
+
+      /* Buttons */
+      .btn-primary {
+        padding: 15px 40px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-gold),
+          var(--secondary-purple)
+        );
+        color: white;
+        border: none;
+        border-radius: 30px;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        letter-spacing: 0.05em;
+        box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 40px rgba(212, 175, 55, 0.4);
+      }
+
+      .btn-secondary {
+        padding: 12px 30px;
+        background: transparent;
+        color: var(--primary-gold);
+        border: 2px solid var(--primary-gold);
+        border-radius: 30px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .btn-secondary:hover {
+        background: rgba(212, 175, 55, 0.1);
+        transform: scale(1.02);
+      }
+
+      /* Welcome Modal */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+      }
+
+      .modal-content {
+        background: linear-gradient(145deg, #1a0b2e, #2d1548);
+        border-radius: 25px;
+        padding: 40px;
+        max-width: 450px;
+        width: 90%;
+        border: 2px solid var(--primary-gold);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        animation: modalAppear 0.5s;
+      }
+
+      @keyframes modalAppear {
+        from {
+          transform: scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .modal-title {
+        font-size: 2em;
+        color: var(--primary-gold);
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .nav-container {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .logo {
+          font-size: 2em;
+        }
+
+        .nav-tab {
+          padding: 12px 30px;
+          font-size: 1em;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background -->
+    <div class="cosmic-bg" id="cosmicBg"></div>
+
+    <!-- User Bar -->
+    <div class="user-bar hidden" id="userBar">
+      <div class="user-avatar" id="userAvatar">G</div>
+      <span class="user-name" id="userName">Guest</span>
+      <button class="btn-logout" id="btnLogout" onclick="handleLogout()">
+        Sign Up
+      </button>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="modal-overlay" id="welcomeModal">
+      <div class="modal-content">
+        <h2 class="modal-title">Welcome to Mystic Fortune</h2>
+        <div id="authChoice">
+          <p style="text-align: center; margin-bottom: 30px; opacity: 0.9">
+            Unlock the mysteries of your destiny through ancient wisdom
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 15px">
+            <button
+              class="btn-primary"
+              onclick="continueAsGuest()"
+              style="width: 100%"
+            >
+              Continue as Guest
+            </button>
+            <button
+              class="btn-secondary"
+              onclick="showSignIn()"
+              style="width: 100%"
+            >
+              Sign In
+            </button>
+            <button
+              class="btn-secondary"
+              onclick="showSignUp()"
+              style="width: 100%"
+            >
+              Create Account
+            </button>
+          </div>
+          <p
+            style="
+              text-align: center;
+              margin-top: 20px;
+              font-size: 0.9em;
+              opacity: 0.7;
+            "
+          >
+            Guest readings are saved for 24 hours
+          </p>
+        </div>
+
+        <div id="signInForm" class="hidden">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="signInEmail" placeholder="your@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              id="signInPassword"
+              placeholder="Enter password"
+            />
+          </div>
+          <button
+            class="btn-primary"
+            onclick="signIn()"
+            style="width: 100%; margin-top: 20px"
+          >
+            Sign In
+          </button>
+          <p style="text-align: center; margin-top: 20px">
+            <a
+              href="#"
+              onclick="showAuthChoice()"
+              style="color: var(--primary-gold)"
+              >← Back</a
+            >
+          </p>
+        </div>
+
+        <div id="signUpForm" class="hidden">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="signUpName" placeholder="Your name" />
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="signUpEmail" placeholder="your@email.com" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              id="signUpPassword"
+              placeholder="Create password"
+            />
+          </div>
+          <button
+            class="btn-primary"
+            onclick="signUp()"
+            style="width: 100%; margin-top: 20px"
+          >
+            Create Account
+          </button>
+          <p style="text-align: center; margin-top: 20px">
+            <a
+              href="#"
+              onclick="showAuthChoice()"
+              style="color: var(--primary-gold)"
+              >← Back</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Header -->
+      <div class="header">
+        <h1 class="logo">MYSTIC FORTUNE</h1>
+        <p class="tagline">Ancient Wisdom · Modern Insights</p>
+      </div>
+
+      <!-- Navigation -->
+      <div class="nav-container">
+        <div class="nav-tab active" onclick="switchTab('fourpillars')">
+          Four Pillars of Destiny
+        </div>
+        <div class="nav-tab" onclick="switchTab('tarot')">Tarot Reading</div>
+      </div>
+
+      <!-- Content -->
+      <div class="content-wrapper">
+        <!-- Four Pillars Tab -->
+        <div id="fourpillars" class="tab-content active">
+          <div id="pillarsForm">
+            <h2
+              style="
+                text-align: center;
+                margin-bottom: 30px;
+                color: var(--primary-gold);
+              "
+            >
+              Calculate Your BaZi Chart
+            </h2>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Birth Date</label>
+                <input type="date" id="birthDate" required />
+              </div>
+              <div class="form-group">
+                <label>Birth Time</label>
+                <input type="time" id="birthTime" required />
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select id="gender" required>
+                  <option value="">Select...</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Birth City</label>
+                <input
+                  type="text"
+                  id="birthCity"
+                  placeholder="e.g., New York"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label>Current City</label>
+                <input
+                  type="text"
+                  id="currentCity"
+                  placeholder="e.g., San Francisco"
+                  required
+                />
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 40px">
+              <button class="btn-primary" onclick="calculateBaZi()">
+                Divine My Destiny
+              </button>
+            </div>
+          </div>
+
+          <div id="pillarsResult" class="hidden">
+            <h2
+              style="
+                text-align: center;
+                margin-bottom: 30px;
+                color: var(--primary-gold);
+              "
+            >
+              Your Four Pillars Chart
+            </h2>
+
+            <div class="pillars-container" id="pillarsDisplay"></div>
+
+            <div style="text-align: center; margin-top: 40px">
+              <button class="btn-secondary" onclick="resetPillars()">
+                New Reading
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tarot Tab -->
+        <div id="tarot" class="tab-content">
+          <h2
+            style="
+              text-align: center;
+              margin-bottom: 30px;
+              color: var(--primary-gold);
+            "
+          >
+            Tarot Reading - Coming Soon
+          </h2>
+          <p style="text-align: center; opacity: 0.8">
+            The tarot module is currently under development. We're working on
+            training our AI to provide accurate and insightful tarot readings.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Global state
+      let currentUser = null;
+      let isGuest = false;
+      let sessionData = {
+        readings: [],
+        timestamp: null,
+      };
+
+      // Initialize background
+      function initBackground() {
+        const bg = document.getElementById("cosmicBg");
+        // Add stars
+        for (let i = 0; i < 150; i++) {
+          const star = document.createElement("div");
+          star.className = "star";
+          star.style.left = Math.random() * 100 + "%";
+          star.style.top = Math.random() * 100 + "%";
+          star.style.animationDelay = Math.random() * 4 + "s";
+          bg.appendChild(star);
+        }
+        // Add constellations
+        for (let i = 0; i < 20; i++) {
+          const constellation = document.createElement("div");
+          constellation.className = "constellation";
+          constellation.style.left = Math.random() * 100 + "%";
+          constellation.style.top = Math.random() * 100 + "%";
+          bg.appendChild(constellation);
+        }
+      }
+
+      // Authentication functions
+      function continueAsGuest() {
+        isGuest = true;
+        currentUser = { name: "Guest", type: "guest" };
+        sessionData.timestamp = Date.now();
+
+        // Check for existing guest session
+        const existingSession = localStorage.getItem("mysticGuestSession");
+        if (existingSession) {
+          const parsed = JSON.parse(existingSession);
+          if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+            sessionData = parsed;
+          }
+        }
+
+        localStorage.setItem("mysticGuestSession", JSON.stringify(sessionData));
+        enterApp();
+      }
+
+      function showSignIn() {
+        document.getElementById("authChoice").classList.add("hidden");
+        document.getElementById("signInForm").classList.remove("hidden");
+      }
+
+      function showSignUp() {
+        document.getElementById("authChoice").classList.add("hidden");
+        document.getElementById("signUpForm").classList.remove("hidden");
+      }
+
+      function showAuthChoice() {
+        document.getElementById("signInForm").classList.add("hidden");
+        document.getElementById("signUpForm").classList.add("hidden");
+        document.getElementById("authChoice").classList.remove("hidden");
+      }
+
+      function signIn() {
+        const email = document.getElementById("signInEmail").value;
+        const password = document.getElementById("signInPassword").value;
+
+        if (email && password) {
+          currentUser = {
+            name: email.split("@")[0],
+            email,
+            type: "registered",
+          };
+          localStorage.setItem("mysticUser", JSON.stringify(currentUser));
+
+          // Transfer guest readings if any
+          if (sessionData.readings.length > 0) {
+            const userReadings = JSON.parse(
+              localStorage.getItem("mysticReadings") || "[]"
+            );
+            userReadings.push(...sessionData.readings);
+            localStorage.setItem(
+              "mysticReadings",
+              JSON.stringify(userReadings)
+            );
+            localStorage.removeItem("mysticGuestSession");
+          }
+
+          enterApp();
+        }
+      }
+
+      function signUp() {
+        const name = document.getElementById("signUpName").value;
+        const email = document.getElementById("signUpEmail").value;
+        const password = document.getElementById("signUpPassword").value;
+
+        if (name && email && password) {
+          currentUser = { name, email, type: "registered" };
+          localStorage.setItem("mysticUser", JSON.stringify(currentUser));
+
+          // Transfer guest readings
+          if (sessionData.readings.length > 0) {
+            localStorage.setItem(
+              "mysticReadings",
+              JSON.stringify(sessionData.readings)
+            );
+            localStorage.removeItem("mysticGuestSession");
+          }
+
+          enterApp();
+        }
+      }
+
+      function enterApp() {
+        document.getElementById("welcomeModal").classList.add("hidden");
+        document.getElementById("userBar").classList.remove("hidden");
+        document.getElementById("userName").textContent = currentUser.name;
+        document.getElementById("userAvatar").textContent =
+          currentUser.name[0].toUpperCase();
+
+        if (isGuest) {
+          document.getElementById("btnLogout").textContent = "Sign Up";
+          document.getElementById("btnLogout").onclick = () =>
+            location.reload();
+        }
+      }
+
+      function handleLogout() {
+        if (isGuest) {
+          location.reload();
+        } else {
+          localStorage.removeItem("mysticUser");
+          location.reload();
+        }
+      }
+
+      // Tab switching
+      function switchTab(tab) {
+        document
+          .querySelectorAll(".nav-tab")
+          .forEach((t) => t.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((c) => c.classList.remove("active"));
+
+        event.target.classList.add("active");
+        document.getElementById(tab).classList.add("active");
+      }
+
+      // Simple BaZi calculation for demo
+      function calculateBaZi() {
+        const birthDate = document.getElementById("birthDate").value;
+        const birthTime = document.getElementById("birthTime").value;
+        const gender = document.getElementById("gender").value;
+        const birthCity = document.getElementById("birthCity").value;
+        const currentCity = document.getElementById("currentCity").value;
+
+        if (!birthDate || !birthTime || !gender || !birthCity || !currentCity) {
+          alert("Please fill in all fields");
+          return;
+        }
+
+        // Simple demo calculation
+        displaySimpleResults();
+
+        // Save reading
+        const reading = {
+          type: "bazi",
+          date: new Date().toISOString(),
+          data: { birthDate, birthTime, gender, birthCity, currentCity },
+        };
+
+        if (isGuest) {
+          sessionData.readings.push(reading);
+          localStorage.setItem(
+            "mysticGuestSession",
+            JSON.stringify(sessionData)
+          );
+        } else {
+          const userReadings = JSON.parse(
+            localStorage.getItem("mysticReadings") || "[]"
+          );
+          userReadings.push(reading);
+          localStorage.setItem("mysticReadings", JSON.stringify(userReadings));
+        }
+      }
+
+      function displaySimpleResults() {
+        document.getElementById("pillarsForm").classList.add("hidden");
+        document.getElementById("pillarsResult").classList.remove("hidden");
+
+        // Create simple demo pillars display
+        const pillarsDisplay = document.getElementById("pillarsDisplay");
+        pillarsDisplay.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+                    <div style="background: linear-gradient(145deg, rgba(147, 51, 234, 0.1), rgba(212, 175, 55, 0.05)); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; padding: 25px; text-align: center;">
+                        <div style="color: var(--primary-gold); font-size: 1.1em; margin-bottom: 15px; text-transform: uppercase;">Year Pillar</div>
+                        <div style="font-size: 3em; margin: 15px 0;">🐉</div>
+                        <div style="font-size: 1.3em; font-weight: 600; margin: 10px 0; background: linear-gradient(135deg, var(--primary-gold), var(--secondary-purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Wood Dragon</div>
+                        <div style="font-size: 0.85em; opacity: 0.7; margin-top: 10px;">Ancestry & Society</div>
+                    </div>
+                    <div style="background: linear-gradient(145deg, rgba(147, 51, 234, 0.1), rgba(212, 175, 55, 0.05)); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; padding: 25px; text-align: center;">
+                        <div style="color: var(--primary-gold); font-size: 1.1em; margin-bottom: 15px; text-transform: uppercase;">Month Pillar</div>
+                        <div style="font-size: 3em; margin: 15px 0;">🐴</div>
+                        <div style="font-size: 1.3em; font-weight: 600; margin: 10px 0; background: linear-gradient(135deg, var(--primary-gold), var(--secondary-purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Fire Horse</div>
+                        <div style="font-size: 0.85em; opacity: 0.7; margin-top: 10px;">Career & Parents</div>
+                    </div>
+                    <div style="background: linear-gradient(145deg, rgba(147, 51, 234, 0.1), rgba(212, 175, 55, 0.05)); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; padding: 25px; text-align: center;">
+                        <div style="color: var(--primary-gold); font-size: 1.1em; margin-bottom: 15px; text-transform: uppercase;">Day Pillar</div>
+                        <div style="font-size: 3em; margin: 15px 0;">🐰</div>
+                        <div style="font-size: 1.3em; font-weight: 600; margin: 10px 0; background: linear-gradient(135deg, var(--primary-gold), var(--secondary-purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Water Rabbit</div>
+                        <div style="font-size: 0.85em; opacity: 0.7; margin-top: 10px;">Self & Spouse</div>
+                    </div>
+                    <div style="background: linear-gradient(145deg, rgba(147, 51, 234, 0.1), rgba(212, 175, 55, 0.05)); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 15px; padding: 25px; text-align: center;">
+                        <div style="color: var(--primary-gold); font-size: 1.1em; margin-bottom: 15px; text-transform: uppercase;">Hour Pillar</div>
+                        <div style="font-size: 3em; margin: 15px 0;">🐅</div>
+                        <div style="font-size: 1.3em; font-weight: 600; margin: 10px 0; background: linear-gradient(135deg, var(--primary-gold), var(--secondary-purple)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Metal Tiger</div>
+                        <div style="font-size: 0.85em; opacity: 0.7; margin-top: 10px;">Children & Legacy</div>
+                    </div>
+                </div>
+                <div style="margin: 30px 0; padding: 25px; background: linear-gradient(145deg, rgba(20, 10, 40, 0.4), rgba(30, 15, 50, 0.4)); border-radius: 15px; border-left: 4px solid var(--primary-gold);">
+                    <h3 style="color: var(--primary-gold); font-size: 1.4em; margin-bottom: 15px;">🔮 Your Destiny Analysis</h3>
+                    <div style="line-height: 1.8; opacity: 0.95;">
+                        <p style="margin-bottom: 15px;">Your Four Pillars reveal a unique destiny path with remarkable balance between different elemental energies. This suggests a life of varied experiences and opportunities for growth in multiple areas.</p>
+                        <p style="margin-bottom: 15px;">The combination of Wood Dragon in your year pillar indicates strong ancestral support and a natural leadership quality that others find inspiring. Your Fire Horse month pillar suggests a career path filled with passion and creative expression.</p>
+                        <p>Your Water Rabbit day pillar reveals a gentle yet intuitive nature, perfect for building harmonious relationships. The Metal Tiger hour pillar points to a legacy of strength and courage that you'll pass on to future generations.</p>
+                    </div>
+                </div>
+            `;
+      }
+
+      function resetPillars() {
+        document.getElementById("pillarsForm").classList.remove("hidden");
+        document.getElementById("pillarsResult").classList.add("hidden");
+      }
+
+      // Initialize the application when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        initBackground();
+
+        // Check for existing user session
+        const savedUser = localStorage.getItem("mysticUser");
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          isGuest = false;
+          enterApp();
+          return;
+        }
+
+        // Check for guest session
+        const guestSession = localStorage.getItem("mysticGuestSession");
+        if (guestSession) {
+          try {
+            const parsed = JSON.parse(guestSession);
+            if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+              sessionData = parsed;
+              isGuest = true;
+              currentUser = { name: "Guest", type: "guest" };
+              enterApp();
+              return;
+            }
+          } catch (e) {
+            console.error("Error loading guest session:", e);
+          }
+        }
+
+        // Show welcome modal if no session exists
+        document.getElementById("welcomeModal").classList.remove("hidden");
+      });
+    </script>
+  </body>
+</html>
